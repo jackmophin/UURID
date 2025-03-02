@@ -1,103 +1,165 @@
-<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UURID++</title><style>body{font-family:Arial,sans-serif;text-align:center;margin:0;padding:50px;background-color:#1e1e1e;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;box-sizing:border-box}canvas{display:block;border:1px solid #fff;border-radius:15px}button{font-size:18px;padding:10px 20px;margin:10px;background:#007bff;color:#fff;border:none;cursor:pointer;border-radius:5px}button:hover{background:#0056b3}#output{font-size:20px;margin:20px;word-wrap:break-word}</style></head><body><h1>🔑 UURID++</h1><button onclick="generateFinalID()">Генерация</button><div id="output">Нажмите кнопку</div><canvas id="canvas" style="display:flex"></canvas><p>Canvas Fingerprint</p><script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script><script>function getCryptoRandom() {
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UURID++</title><style>body{font-family:Arial,sans-serif;text-align:center;margin:0;padding:50px;background-color:#1e1e1e;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;box-sizing:border-box}canvas{display:block;border:1px solid #fff;border-radius:15px}button{font-size:18px;padding:10px 20px;margin:10px;background:#007bff;color:#fff;border:none;cursor:pointer;border-radius:5px}button:hover{background:#0056b3}#output{font-size:20px;margin:20px;word-wrap:break-word}</style></head><body><h1>🔑 UURID++</h1><button onclick="generateFinalID()" id="x">Генерация</button><div id="output"></div><canvas id="canvas" style="display:flex" width="312" height="411"></canvas><p>Canvas Fingerprint</p><script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script><script>
+    
+    function getCryptoRandom() {
             let arr = new Uint32Array(1);
             crypto.getRandomValues(arr);
             return arr[0] / 0xFFFFFFFF + 0.000001;
         }
 
+
         function getRandomString(length) {
-       let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+§±!№%:,.;()_+';
-for (let i = 0x2000; i <= 0x206F; i++) {
-    chars += String.fromCharCode(i);
+    let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+§±!№%:,.;()_+';
+    for (let i = 0x2000; i <= 0x206F; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    for (let i = 0x2B50; i <= 0x2BFF; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    for (let i = 0x3000; i <= 0x30FF; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    for (let i = 0x4E00; i <= 0x9FFF; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        let randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 0xFFFFFFFF * chars.length);
+        result += chars.charAt(randomIndex);
+    }
+    return result;
 }
 
-for (let i = 0x2B50; i <= 0x2BFF; i++) {
-    chars += String.fromCharCode(i);
-}
-
-for (let i = 0x3000; i <= 0x30FF; i++) {
-    chars += String.fromCharCode(i);
-}
-
-for (let i = 0x4E00; i <= 0x9FFF; i++) {
-    chars += String.fromCharCode(i);
-}
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(getCryptoRandom() * chars.length));
-            }
-            return result;
-        }
 
         function getCanvasFingerprint() {
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
-    canvas.width = Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 300) + 100)) + 100;
-    canvas.height = Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 300) + 100)) + 100;
+    canvas.width = Math.floor(getCryptoRandom() * 300) + 200;
+    canvas.height = Math.floor(getCryptoRandom() * 300) + 200;
 
-    const randomColor = `rgba(${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.random()})`;
-    context.fillStyle = randomColor;
+    // Градиентный фон
+    const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, `rgba(${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, 1)`);
+    gradient.addColorStop(1, `rgba(${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, 1)`);
+    context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
-
-    const numberOfRectangles = Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 20) + 1)) + 1;
-
-    for (let i = 0; i < numberOfRectangles; i++) {
-        const rectWidth = Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 120) + 1)); 
-        const rectHeight = Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 120) + 1)); 
-        const posX = Math.floor(getCryptoRandom() * (canvas.width - rectWidth)); 
-        const posY = Math.floor(getCryptoRandom() * (canvas.height - rectHeight)); 
-        const rotation = Math.floor(getCryptoRandom() * 360); 
-        const rectColor = `rgba(${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${getCryptoRandom()})`; 
-
-        context.save();
-        context.translate(posX + rectWidth / 2 + getCryptoRandom() * 75, posY + rectHeight / 2 + getCryptoRandom() * 75);
-        context.rotate(rotation * Math.PI / 180);
-        context.fillStyle = rectColor;
-        context.fillRect(-rectWidth / 2, -rectHeight / 2, rectWidth, rectHeight);
-        context.restore();
-    }
-
-    const numberOfTexts = Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 25) + 2)) + 3;
 
     const fonts = ['Arial', 'Comic Sans MS', 'Courier New', 'Georgia', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Impact', 'Lucida Sans', 'Times New Roman', 'Palatino Linotype', 'Arial Black', 'Helvetica', 'Arial Narrow', 'Comic Sans', 'Lucida Console', 'Courier', 'Book Antiqua', 'Segoe UI', 'Consolas', 'Symbol', 'Geneva', 'Serif', 'Fantasy', 'Trebuchet', 'Modern', 'Sans-serif', 'Cursive', 'Monospace', 'Futura', 'Gill Sans', 'Baskerville', 'Frank Ruhl Libre', 'Hoefler Text', 'Rockwell', 'Optima', 'Georgia', 'American Typewriter', 'Garamond', 'Avenir', 'PT Sans', 'Roboto', 'Lato', 'Montserrat', 'Playfair Display', 'Poppins', 'Raleway'];
 
+    const numberOfTexts = Math.floor(getCryptoRandom() * 35);
+
     for (let i = 0; i < numberOfTexts; i++) {
-        const text = getRandomString(Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 50) + 5))); 
-        const fontSize = Math.floor(getCryptoRandom() * (Math.floor(getCryptoRandom() * 80) + 5)); 
-        const fontFamily = fonts[Math.floor(getCryptoRandom() * fonts.length)]; 
-        const rotation = Math.floor(getCryptoRandom() * 360); 
-        const opacity = getCryptoRandom(); 
-        const color = `rgba(${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${opacity})`; 
-        const posX = Math.floor(getCryptoRandom() * canvas.width); 
-        const posY = Math.floor(getCryptoRandom() * canvas.height); 
-        const shadowBlur = Math.floor(getCryptoRandom() * 20); 
-        const shadowOffsetX = Math.floor(getCryptoRandom() * 55) - 5; 
-        const shadowOffsetY = Math.floor(getCryptoRandom() * 55) - 5; 
-        const shadowColor = `rgba(${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.random()})`; 
+        const text = getRandomString(Math.floor(getCryptoRandom() * 20) + 5);
+        const fontSize = Math.floor(getCryptoRandom() * 50) + 10;
+        const fontFamily = fonts[Math.floor(getCryptoRandom() * fonts.length)];
+        const rotation = getCryptoRandom() * Math.PI * 2;
+        const color = `rgba(${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${getCryptoRandom()})`;
+        const posX = getCryptoRandom() * canvas.width;
+        const posY = getCryptoRandom() * canvas.height;
 
         context.save();
         context.translate(posX, posY);
-        context.rotate(rotation * Math.PI / 180);
+        context.rotate(rotation);
         context.font = `${fontSize}px ${fontFamily}`;
         context.fillStyle = color;
-        context.globalAlpha = opacity;
-        context.shadowBlur = shadowBlur;
-        context.shadowOffsetX = shadowOffsetX;
-        context.shadowOffsetY = shadowOffsetY;
-        context.shadowColor = shadowColor;
         context.fillText(text, 0, 0);
         context.restore();
     }
 
-    for (let i = 0; i < canvas.width * canvas.height * 0.02; i++) {
-        const x = Math.floor(getCryptoRandom() * canvas.width);
-        const y = Math.floor(getCryptoRandom() * canvas.height);
-        context.globalAlpha = getCryptoRandom();
-        const color = `rgba(${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.random()})`; 
-        context.fillStyle = color;
-        context.fillRect(x, y, getCryptoRandom() * 3, getCryptoRandom() * 3); 
+    // Волнистые линии
+    for (let i = 0; i < 5; i++) {
+        context.beginPath();
+        let y = getCryptoRandom() * canvas.height;
+        context.moveTo(0, y);
+        for (let j = 0; j < canvas.width; j += 10) {
+            context.lineTo(j * getCryptoRandom() * 5, y * getCryptoRandom() * 5);
+        }
+        context.strokeStyle = `rgba(${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom()})`;
+        context.lineWidth = getCryptoRandom() * 5 + 1;
+        context.stroke();
     }
 
+    // Случайные круги
+    for (let i = 0; i < 10; i++) {
+        context.beginPath();
+        context.arc(getCryptoRandom() * canvas.width, getCryptoRandom() * canvas.height, getCryptoRandom() * 50 + 10, 0, Math.PI * getCryptoRandom() * 2);
+        context.fillStyle = `rgba(${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom()})`;
+        context.fill();
+        context.stroke();
+    }
+
+    // Прямоугольники
+    for (let i = 0; i < 5; i++) {
+        let x = getCryptoRandom() * canvas.width;
+        let y = getCryptoRandom() * canvas.height;
+        let w = getCryptoRandom() * 100 + 20;
+        let h = getCryptoRandom() * 100 + 20;
+
+        context.fillStyle = `rgba(${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom() * 255}, ${getCryptoRandom()})`;
+        context.fillRect(x, y, w, h);
+        context.strokeRect(x, y, w, h);
+    }
+
+    // Шумовой эффект
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        if (getCryptoRandom() > 0.8) {
+            data[i] = getCryptoRandom() * 255;
+            data[i + 1] = getCryptoRandom() * 255;
+            data[i + 2] = getCryptoRandom() * 255;
+        }
+    }
+    context.putImageData(imageData, 0, 0);
+     for (let i = 0; i < canvas.width * canvas.height * 0.02; i++) {
+        const x = Math.floor(getCryptoRandom() * canvas.width);
+        const y = Math.floor(getCryptoRandom() * canvas.height);
+        context.globalAlpha = getCryptoRandom() * 0.15;
+        const color = `rgba(${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${Math.floor(getCryptoRandom() * 256)}, ${getCryptoRandom()})`; 
+        context.fillStyle = color;
+        context.fillRect(x, y, getCryptoRandom() * 55, getCryptoRandom() * 55); 
+    }
+    return canvas.toDataURL();
+}
+
+function generateSalt(length = 30) {
+    let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0x2000; i <= 0x206F; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    for (let i = 0x2B50; i <= 0x2BFF; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    for (let i = 0x3000; i <= 0x30FF; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    for (let i = 0x4E00; i <= 0x9FFF; i++) {
+        chars += String.fromCharCode(i);
+    }
+
+    let salt = '';
+    for (let i = 0; i < length; i++) {
+        let randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 0xFFFFFFFF * chars.length);
+        salt += chars.charAt(randomIndex);
+    }
+    return salt;
+}
+
+
+async function generateHMAC(key, data) {
+    const encoder = new TextEncoder();
+    const cryptoKey = await crypto.subtle.importKey(
+        "raw", encoder.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+    );
+    const signature = await crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(data));
+    return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function getRandomString(length) {
@@ -125,14 +187,12 @@ for (let i = 0x4E00; i <= 0x9FFF; i++) {
     return result;
 }
 
-function getCryptoRandom() {
-    return crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1);
-}
 
         function generateID() {
             let randomNumbers = performance.now().toString().replace(".", "") + getCryptoRandom().toString().slice(2);
-            let shuffledNumbers = shuffleString(randomNumbers);
-            let urlSafeString = numberToURLSafeString(shuffledNumbers);
+            let salt = generateSalt();
+            let shuffledNumbers = shuffleString(randomNumbers + salt);
+            let urlSafeString = numberToURLSafeString(shuffleString(shuffledNumbers + generateSalt()));
             let shift = Math.floor(getCryptoRandom() * 60) + 1;
             let caesarText = caesarCipher(urlSafeString, shift);
             let key = getRandomText(12);
@@ -170,7 +230,22 @@ function getCryptoRandom() {
         }
 
         function getRandomText(length) {
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+for (let i = 0x2000; i <= 0x206F; i++) {
+    chars += String.fromCharCode(i);
+}
+
+for (let i = 0x2B50; i <= 0x2BFF; i++) {
+    chars += String.fromCharCode(i);
+}
+
+for (let i = 0x3000; i <= 0x30FF; i++) {
+    chars += String.fromCharCode(i);
+}
+
+for (let i = 0x4E00; i <= 0x9FFF; i++) {
+    chars += String.fromCharCode(i);
+}
             let result = '';
             for (let i = 0; i < length; i++) {
                 result += chars.charAt(Math.floor(getCryptoRandom() * chars.length));
@@ -180,18 +255,28 @@ function getCryptoRandom() {
 
         function generateFinalID() {
             let randomString = '';
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 15; i++) {
                 randomString += getRandomString(20); 
             }
 
             let canvasFingerprint = getCanvasFingerprint(); 
-            let systemData = navigator.userAgent + screen.width + screen.height; 
+            let systemData = navigator.userAgent + 
+                 screen.width + screen.height + 
+                 navigator.language + 
+                 navigator.platform + 
+                 navigator.hardwareConcurrency + 
+                 navigator.cookieEnabled + 
+                 navigator.deviceMemory + 
+                 navigator.appVersion + 
+                 navigator.product + 
+                 navigator.vendor;
+            systemData = shuffleString(systemData.replace(/ /g, ''));
 
-            let combinedData = randomString + canvasFingerprint + systemData; 
+            let combinedData = shuffleString(randomString + canvasFingerprint + systemData); 
 
             let finalID = btoa(unescape(encodeURIComponent(caesarCipher(combinedData, Math.floor(getCryptoRandom() * 20) + 1)))); 
 
-            let selectedID = selectRandomSubstring(finalID, 15);
+            let selectedID = shuffleString(selectRandomSubstring( shuffleString(selectRandomSubstring(finalID, 50)), 15));
 
             document.getElementById("output").innerText = `${selectedID}`;
         }
@@ -206,4 +291,5 @@ function getCryptoRandom() {
     }
 
     return chars.slice(0, length).join('');
-}</script></body></html>
+}</script>
+</body></html>
